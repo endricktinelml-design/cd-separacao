@@ -290,9 +290,26 @@ select option{background:var(--bg2);}
         <input id="cod-input" type="text" maxlength="6" autocomplete="off" inputmode="none"
           style="opacity:0;position:absolute;pointer-events:none;width:1px;height:1px;"
           oninput="onCodInput(this.value)"/>
-        <div style="font-size:12px;color:var(--text3);">Aponte o leitor para o crachá</div>
+        <div style="font-size:12px;color:var(--text3);" id="cod-hint">Aponte o leitor para o crachá</div>
       </div>
-      <button class="btn btn-outline" onclick="focarCod()">Digitar manualmente</button>
+      <!-- Teclado numérico manual -->
+      <div id="cod-numpad" style="display:none;">
+        <div class="numpad">
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('1')">1</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('2')">2</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('3')">3</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('4')">4</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('5')">5</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('6')">6</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('7')">7</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('8')">8</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('9')">9</button>
+          <button class="btn btn-outline" style="font-size:16px;" onclick="apagarCod()">⌫</button>
+          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('0')">0</button>
+          <button class="btn btn-outline" style="font-size:13px;color:var(--text2);" onclick="ocultarNumpadCod()">Scanner</button>
+        </div>
+      </div>
+      <button class="btn btn-outline" id="btn-digitar-manual" onclick="focarCod()">Digitar manualmente</button>
     </div>
   </div>
 
@@ -478,6 +495,26 @@ select option{background:var(--bg2);}
       <input id="bip-input" type="text" autocomplete="off" inputmode="none"
         style="opacity:0;position:absolute;pointer-events:none;width:1px;height:1px;"
         oninput="onBipInput(this.value)"/>
+
+      <!-- Digitar EAN manualmente -->
+      <div id="ean-manual-wrap" style="display:none;">
+        <div class="card" style="padding:14px 16px;">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-family:var(--mono);">DIGITAR EAN / CÓDIGO MANUALMENTE</div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="ean-manual-input" placeholder="Ex: 7891000100285"
+              style="flex:1;font-family:var(--mono);font-size:15px;letter-spacing:1px;"
+              oninput="this.value=this.value.replace(/[^0-9a-zA-Z]/g,'')"
+              onkeydown="if(event.key==='Enter') confirmarEanManual()"/>
+            <button class="btn btn-green" style="width:auto;padding:10px 18px;font-size:14px;" onclick="confirmarEanManual()">OK</button>
+          </div>
+          <button class="btn btn-outline" style="margin-top:8px;font-size:13px;" onclick="fecharEanManual()">Cancelar</button>
+        </div>
+      </div>
+
+      <button class="btn btn-outline" id="btn-ean-manual" onclick="abrirEanManual()" style="font-size:13px;padding:11px;">
+        ⌨️ Digitar código manualmente
+      </button>
+
       <div class="items-card" id="items-card" style="display:none;">
         <div class="items-hdr">
           <div class="items-hdr-title">Itens no pedido</div>
@@ -884,10 +921,65 @@ function iniciarAtualizacaoProdutos() {
 // ═══════════════════════════════════════════════════════
 // LOGIN — CÓDIGO
 // ═══════════════════════════════════════════════════════
+// Buffer manual do código
+let codBufManual = '';
+
 function focarCod() {
-  const inp = document.getElementById('cod-input');
-  inp.removeAttribute('inputmode');
-  inp.focus();
+  // Mostrar teclado numérico, esconder botão
+  codBufManual = '';
+  document.getElementById('cod-numpad').style.display = 'block';
+  document.getElementById('btn-digitar-manual').style.display = 'none';
+  document.getElementById('cod-hint').textContent = 'Digite o código de 6 dígitos';
+}
+
+function ocultarNumpadCod() {
+  codBufManual = '';
+  document.getElementById('cod-numpad').style.display = 'none';
+  document.getElementById('btn-digitar-manual').style.display = 'block';
+  document.getElementById('cod-hint').textContent = 'Aponte o leitor para o crachá';
+  // Limpar boxes
+  ['b0','b1','b2','b3','b4','b5'].forEach(id => {
+    const b = document.getElementById(id);
+    b.textContent = ''; b.className = 'cod-box';
+  });
+}
+
+function digitarCod(d) {
+  if (codBufManual.length >= 6) return;
+  codBufManual += d;
+  // Atualizar boxes visuais
+  ['b0','b1','b2','b3','b4','b5'].forEach((id, i) => {
+    const b = document.getElementById(id);
+    if (i < codBufManual.length) {
+      b.textContent = codBufManual[i];
+      b.classList.add('f');
+    } else {
+      b.textContent = '';
+      b.classList.remove('f');
+    }
+  });
+  if (codBufManual.length === 6) {
+    // Esconder teclado e processar
+    document.getElementById('cod-numpad').style.display = 'none';
+    document.getElementById('btn-digitar-manual').style.display = 'block';
+    setTimeout(() => entrar(codBufManual), 50);
+    codBufManual = '';
+  }
+}
+
+function apagarCod() {
+  if (codBufManual.length === 0) return;
+  codBufManual = codBufManual.slice(0, -1);
+  ['b0','b1','b2','b3','b4','b5'].forEach((id, i) => {
+    const b = document.getElementById(id);
+    if (i < codBufManual.length) {
+      b.textContent = codBufManual[i];
+      b.classList.add('f');
+    } else {
+      b.textContent = '';
+      b.classList.remove('f');
+    }
+  });
 }
 
 function onCodInput(v) {
@@ -1204,6 +1296,43 @@ function iniciarBipagem(ped) {
 function focarBip() {
   const inp = document.getElementById('bip-input');
   inp.focus();
+}
+
+function abrirEanManual() {
+  document.getElementById('ean-manual-wrap').style.display = 'block';
+  document.getElementById('btn-ean-manual').style.display = 'none';
+  setTimeout(() => {
+    const inp = document.getElementById('ean-manual-input');
+    inp.removeAttribute('inputmode');
+    inp.focus();
+  }, 100);
+}
+
+function fecharEanManual() {
+  document.getElementById('ean-manual-wrap').style.display = 'none';
+  document.getElementById('btn-ean-manual').style.display = 'block';
+  document.getElementById('ean-manual-input').value = '';
+  setTimeout(() => focarBip(), 100);
+}
+
+function onEanManualKey(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    confirmarEanManual();
+  }
+}
+
+function confirmarEanManual() {
+  const inp = document.getElementById('ean-manual-input');
+  const cod = (inp.value || '').trim();
+  if (!cod) {
+    inp.style.borderColor = 'var(--red)';
+    setTimeout(() => inp.style.borderColor = 'var(--border2)', 800);
+    return;
+  }
+  inp.value = '';
+  fecharEanManual();
+  processBip(cod);
 }
 
 function onBipInput(v) {
