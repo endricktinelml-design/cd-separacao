@@ -275,51 +275,58 @@ select option{background:var(--bg2);}
   <div class="screen active" id="s-login">
     <div class="topbar"><div class="topbar-inner">
       <div class="topbar-title">CD Separação</div>
-      <div class="topbar-sub" id="cod-hint">Bipe seu crachá para entrar</div>
+      <div class="topbar-sub" id="cod-hint">Bipe ou digite seu crachá</div>
     </div></div>
-    <div class="body">
 
-      <!-- Card com boxes do código -->
+    <!-- INPUT INVISÍVEL — captura scanner físico/BT sempre -->
+    <input id="cod-input" type="text" maxlength="6" autocomplete="off" inputmode="none"
+      style="opacity:0;position:fixed;top:0;left:0;width:1px;height:1px;z-index:-1;"
+      oninput="onCodInput(this.value)"/>
+
+    <!-- MODO SCANNER: boxes + botão de digitar -->
+    <div id="login-modo-scanner" class="body">
       <div class="card" style="text-align:center;padding:28px 20px;">
         <div style="width:60px;height:60px;border-radius:18px;background:var(--green-bg);border:1px solid var(--green-border);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="9" y="3" width="2" height="18" rx="1"/><rect x="13" y="3" width="4" height="18" rx="1"/><rect x="19" y="3" width="2" height="18" rx="1"/></svg>
         </div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:16px;font-family:var(--mono);">CÓDIGO DO OPERADOR — 6 DÍGITOS</div>
-        <div class="cod-boxes">
+        <div class="cod-boxes" style="margin-bottom:16px;">
           <div class="cod-box" id="b0"></div><div class="cod-box" id="b1"></div><div class="cod-box" id="b2"></div>
           <div class="cod-box" id="b3"></div><div class="cod-box" id="b4"></div><div class="cod-box" id="b5"></div>
         </div>
-        <!-- Input invisível para scanner físico -->
-        <input id="cod-input" type="text" maxlength="6" autocomplete="off" inputmode="none"
-          style="opacity:0;position:fixed;top:-100px;left:-100px;width:1px;height:1px;"
-          oninput="onCodInput(this.value)"/>
+        <div style="font-size:12px;color:var(--text3);">Aponte o leitor para o crachá</div>
       </div>
+      <button class="btn btn-outline" onclick="mostrarNumpadCod()">⌨️ Digitar manualmente</button>
+    </div>
 
-      <!-- Teclado numérico (visível após clicar "Digitar manualmente") -->
-      <div id="cod-numpad" style="display:none;">
-        <div class="numpad">
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('1')">1</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('2')">2</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('3')">3</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('4')">4</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('5')">5</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('6')">6</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('7')">7</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('8')">8</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('9')">9</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:16px;" onclick="apagarCod()">⌫</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('0')">0</button>
-          <button class="btn btn-outline" style="padding:18px;font-size:13px;" onclick="ocultarNumpadCod()">🔍 Scanner</button>
+    <!-- MODO TECLADO: numpad completo -->
+    <div id="login-modo-teclado" class="body" style="display:none;">
+      <div class="card" style="text-align:center;padding:20px;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;font-family:var(--mono);">CÓDIGO DO OPERADOR — 6 DÍGITOS</div>
+        <div class="cod-boxes" style="margin-bottom:8px;">
+          <div class="cod-box" id="bt0"></div><div class="cod-box" id="bt1"></div><div class="cod-box" id="bt2"></div>
+          <div class="cod-box" id="bt3"></div><div class="cod-box" id="bt4"></div><div class="cod-box" id="bt5"></div>
         </div>
       </div>
-
-      <!-- Botão "Digitar manualmente" (some quando teclado aparece) -->
-      <button class="btn btn-outline" id="btn-digitar-manual" onclick="focarCod()">⌨️ Digitar manualmente</button>
-
+      <div class="numpad">
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('1')">1</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('2')">2</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('3')">3</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('4')">4</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('5')">5</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('6')">6</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('7')">7</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('8')">8</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('9')">9</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:18px;" onclick="apagarCod()">⌫</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:22px;" onclick="digitarCod('0')">0</button>
+        <button class="btn btn-outline" style="padding:18px;font-size:12px;" onclick="ocultarNumpadCod()">Scanner</button>
+      </div>
     </div>
+
   </div>
 
-  <!-- ===== TELA SENHA ===== -->
+    <!-- ===== TELA SENHA ===== -->
   <div class="screen" id="s-senha">
     <div class="topbar"><div class="topbar-inner">
       <div class="topbar-title" id="senha-titulo">Olá, Operador</div>
@@ -930,27 +937,38 @@ function iniciarAtualizacaoProdutos() {
 // Buffer manual do código
 let codBufManual = '';
 
-function focarCod() {
+function mostrarNumpadCod() {
+  // Trocar para modo teclado
   codBufManual = '';
-  document.getElementById('cod-numpad').style.display = 'block';
-  document.getElementById('btn-digitar-manual').style.display = 'none';
+  limparBoxesTeclado();
+  document.getElementById('login-modo-scanner').style.display = 'none';
+  document.getElementById('login-modo-teclado').style.display = 'flex';
   document.getElementById('cod-hint').textContent = 'Digite o código de 6 dígitos';
 }
 
+// focarCod() mantido como alias para compatibilidade
+function focarCod() { mostrarNumpadCod(); }
+
 function ocultarNumpadCod() {
+  // Voltar para modo scanner
   codBufManual = '';
-  document.getElementById('cod-numpad').style.display = 'none';
-  document.getElementById('btn-digitar-manual').style.display = 'block';
-  document.getElementById('cod-hint').textContent = 'Bipe seu crachá para entrar';
-  ['b0','b1','b2','b3','b4','b5'].forEach(id => {
+  limparBoxesTeclado();
+  document.getElementById('login-modo-teclado').style.display = 'none';
+  document.getElementById('login-modo-scanner').style.display = 'flex';
+  document.getElementById('cod-hint').textContent = 'Bipe ou digite seu crachá';
+}
+
+function limparBoxesTeclado() {
+  ['bt0','bt1','bt2','bt3','bt4','bt5'].forEach(id => {
     const b = document.getElementById(id);
-    b.textContent = ''; b.className = 'cod-box';
+    if (b) { b.textContent = ''; b.className = 'cod-box'; b.style.borderColor = ''; b.style.color = ''; }
   });
 }
 
 function atualizarBoxesCod() {
-  ['b0','b1','b2','b3','b4','b5'].forEach((id, i) => {
+  ['bt0','bt1','bt2','bt3','bt4','bt5'].forEach((id, i) => {
     const b = document.getElementById(id);
+    if (!b) return;
     if (i < codBufManual.length) {
       b.textContent = codBufManual[i];
       b.classList.add('f');
@@ -966,11 +984,12 @@ function digitarCod(d) {
   codBufManual += d;
   atualizarBoxesCod();
   if (codBufManual.length === 6) {
-    document.getElementById('cod-numpad').style.display = 'none';
-    document.getElementById('btn-digitar-manual').style.display = 'block';
-    document.getElementById('cod-hint').textContent = 'Bipe seu crachá para entrar';
     const cod = codBufManual;
     codBufManual = '';
+    // Voltar para modo scanner e processar
+    document.getElementById('login-modo-teclado').style.display = 'none';
+    document.getElementById('login-modo-scanner').style.display = 'flex';
+    document.getElementById('cod-hint').textContent = 'Bipe ou digite seu crachá';
     setTimeout(() => entrar(cod), 80);
   }
 }
@@ -1015,11 +1034,13 @@ function entrar(cod) {
     setTimeout(() => {
       document.getElementById('cod-input').value = '';
       codBufManual = '';
+      // Limpar boxes do modo scanner
       ['b0','b1','b2','b3','b4','b5'].forEach(id => {
         const b = document.getElementById(id);
-        b.textContent = ''; b.className = 'cod-box';
-        b.style.borderColor = ''; b.style.color = '';
+        if (b) { b.textContent = ''; b.className = 'cod-box'; b.style.borderColor = ''; b.style.color = ''; }
       });
+      // Limpar boxes do modo teclado
+      limparBoxesTeclado();
     }, 800);
     return;
   }
@@ -1028,6 +1049,7 @@ function entrar(cod) {
   G.opPermissoes = op.permissoes;
   document.getElementById('cod-input').value = '';
   codBufManual = '';
+  limparBoxesTeclado();
   // Ir para tela de senha
   senhaBuf = '';
   atualizarSenhaBoxes();
@@ -1931,4 +1953,13 @@ function init() {
   document.getElementById('clock').textContent = hora();
   
   // Focar input do login
-  setTimeout((
+  setTimeout(() => {
+    const inp = document.getElementById('cod-input');
+    if (inp) inp.focus();
+  }, 300);
+}
+
+init();
+</script>
+</html>
+
