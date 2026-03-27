@@ -275,9 +275,11 @@ select option{background:var(--bg2);}
   <div class="screen active" id="s-login">
     <div class="topbar"><div class="topbar-inner">
       <div class="topbar-title">CD Separação</div>
-      <div class="topbar-sub">Bipe seu crachá para entrar</div>
+      <div class="topbar-sub" id="cod-hint">Bipe seu crachá para entrar</div>
     </div></div>
     <div class="body">
+
+      <!-- Card com boxes do código -->
       <div class="card" style="text-align:center;padding:28px 20px;">
         <div style="width:60px;height:60px;border-radius:18px;background:var(--green-bg);border:1px solid var(--green-border);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="9" y="3" width="2" height="18" rx="1"/><rect x="13" y="3" width="4" height="18" rx="1"/><rect x="19" y="3" width="2" height="18" rx="1"/></svg>
@@ -287,29 +289,33 @@ select option{background:var(--bg2);}
           <div class="cod-box" id="b0"></div><div class="cod-box" id="b1"></div><div class="cod-box" id="b2"></div>
           <div class="cod-box" id="b3"></div><div class="cod-box" id="b4"></div><div class="cod-box" id="b5"></div>
         </div>
+        <!-- Input invisível para scanner físico -->
         <input id="cod-input" type="text" maxlength="6" autocomplete="off" inputmode="none"
-          style="opacity:0;position:absolute;pointer-events:none;width:1px;height:1px;"
+          style="opacity:0;position:fixed;top:-100px;left:-100px;width:1px;height:1px;"
           oninput="onCodInput(this.value)"/>
-        <div style="font-size:12px;color:var(--text3);" id="cod-hint">Aponte o leitor para o crachá</div>
       </div>
-      <!-- Teclado numérico manual -->
+
+      <!-- Teclado numérico (visível após clicar "Digitar manualmente") -->
       <div id="cod-numpad" style="display:none;">
         <div class="numpad">
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('1')">1</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('2')">2</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('3')">3</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('4')">4</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('5')">5</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('6')">6</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('7')">7</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('8')">8</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('9')">9</button>
-          <button class="btn btn-outline" style="font-size:16px;" onclick="apagarCod()">⌫</button>
-          <button class="btn btn-outline" style="font-size:20px;" onclick="digitarCod('0')">0</button>
-          <button class="btn btn-outline" style="font-size:13px;color:var(--text2);" onclick="ocultarNumpadCod()">Scanner</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('1')">1</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('2')">2</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('3')">3</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('4')">4</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('5')">5</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('6')">6</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('7')">7</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('8')">8</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('9')">9</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:16px;" onclick="apagarCod()">⌫</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:20px;" onclick="digitarCod('0')">0</button>
+          <button class="btn btn-outline" style="padding:18px;font-size:13px;" onclick="ocultarNumpadCod()">🔍 Scanner</button>
         </div>
       </div>
-      <button class="btn btn-outline" id="btn-digitar-manual" onclick="focarCod()">Digitar manualmente</button>
+
+      <!-- Botão "Digitar manualmente" (some quando teclado aparece) -->
+      <button class="btn btn-outline" id="btn-digitar-manual" onclick="focarCod()">⌨️ Digitar manualmente</button>
+
     </div>
   </div>
 
@@ -925,7 +931,6 @@ function iniciarAtualizacaoProdutos() {
 let codBufManual = '';
 
 function focarCod() {
-  // Mostrar teclado numérico, esconder botão
   codBufManual = '';
   document.getElementById('cod-numpad').style.display = 'block';
   document.getElementById('btn-digitar-manual').style.display = 'none';
@@ -936,18 +941,14 @@ function ocultarNumpadCod() {
   codBufManual = '';
   document.getElementById('cod-numpad').style.display = 'none';
   document.getElementById('btn-digitar-manual').style.display = 'block';
-  document.getElementById('cod-hint').textContent = 'Aponte o leitor para o crachá';
-  // Limpar boxes
+  document.getElementById('cod-hint').textContent = 'Bipe seu crachá para entrar';
   ['b0','b1','b2','b3','b4','b5'].forEach(id => {
     const b = document.getElementById(id);
     b.textContent = ''; b.className = 'cod-box';
   });
 }
 
-function digitarCod(d) {
-  if (codBufManual.length >= 6) return;
-  codBufManual += d;
-  // Atualizar boxes visuais
+function atualizarBoxesCod() {
   ['b0','b1','b2','b3','b4','b5'].forEach((id, i) => {
     const b = document.getElementById(id);
     if (i < codBufManual.length) {
@@ -958,28 +959,26 @@ function digitarCod(d) {
       b.classList.remove('f');
     }
   });
+}
+
+function digitarCod(d) {
+  if (codBufManual.length >= 6) return;
+  codBufManual += d;
+  atualizarBoxesCod();
   if (codBufManual.length === 6) {
-    // Esconder teclado e processar
     document.getElementById('cod-numpad').style.display = 'none';
     document.getElementById('btn-digitar-manual').style.display = 'block';
-    setTimeout(() => entrar(codBufManual), 50);
+    document.getElementById('cod-hint').textContent = 'Bipe seu crachá para entrar';
+    const cod = codBufManual;
     codBufManual = '';
+    setTimeout(() => entrar(cod), 80);
   }
 }
 
 function apagarCod() {
   if (codBufManual.length === 0) return;
   codBufManual = codBufManual.slice(0, -1);
-  ['b0','b1','b2','b3','b4','b5'].forEach((id, i) => {
-    const b = document.getElementById(id);
-    if (i < codBufManual.length) {
-      b.textContent = codBufManual[i];
-      b.classList.add('f');
-    } else {
-      b.textContent = '';
-      b.classList.remove('f');
-    }
-  });
+  atualizarBoxesCod();
 }
 
 function onCodInput(v) {
@@ -1015,6 +1014,7 @@ function entrar(cod) {
     toast('Código não autorizado', 'error');
     setTimeout(() => {
       document.getElementById('cod-input').value = '';
+      codBufManual = '';
       ['b0','b1','b2','b3','b4','b5'].forEach(id => {
         const b = document.getElementById(id);
         b.textContent = ''; b.className = 'cod-box';
@@ -1026,6 +1026,8 @@ function entrar(cod) {
   G.opCod = cod;
   G.opNome = op.nome;
   G.opPermissoes = op.permissoes;
+  document.getElementById('cod-input').value = '';
+  codBufManual = '';
   // Ir para tela de senha
   senhaBuf = '';
   atualizarSenhaBoxes();
@@ -1929,13 +1931,4 @@ function init() {
   document.getElementById('clock').textContent = hora();
   
   // Focar input do login
-  setTimeout(() => {
-    const inp = document.getElementById('cod-input');
-    if (inp) inp.focus();
-  }, 300);
-}
-
-init();
-</script>
-</html>
-
+  setTimeout((
