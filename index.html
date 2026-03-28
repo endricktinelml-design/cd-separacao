@@ -360,10 +360,6 @@ select option{background:var(--bg2)}
             <input type="text" id="novo-ped-num" placeholder="Ex: PED-2024-001"/>
           </div>
           <div>
-            <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-family:var(--mono)">CLIENTE / DESTINO</div>
-            <input type="text" id="novo-ped-cliente" placeholder="Nome do cliente ou loja"/>
-          </div>
-          <div>
             <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-family:var(--mono)">LOJA DESTINO</div>
             <div id="novo-ped-lojas" style="display:flex;flex-direction:column;gap:8px"></div>
           </div>
@@ -918,15 +914,13 @@ function selecionarLoja(i){
 }
 function criarPedido(){
   var num=document.getElementById('novo-ped-num').value.trim();
-  var cli=document.getElementById('novo-ped-cliente').value.trim();
   var obs=document.getElementById('novo-ped-obs').value.trim();
   if(!num){toast('Informe o número do pedido','warn');return;}
-  if(!cli){toast('Informe o cliente/destino','warn');return;}
   if(window._lojaSel<0){toast('Selecione a loja destino','warn');return;}
   var loja=LOJAS[window._lojaSel];
   var p={
     id:'p'+Date.now(),
-    numero:num, cliente:cli,
+    numero:num, cliente:loja.nome,
     loja:loja.nome, lojaIc:loja.ic,
     obs:obs, status:'pendente',
     itens:[], data:hoje(),
@@ -1153,8 +1147,13 @@ function processarConf(cod){
     toast('Item não está neste pedido: '+cod,'error');
     return;
   }
+  // Bloquear se já atingiu a quantidade separada
+  if(it.confQtd>=it.qtd){
+    toast('Quantidade máxima atingida para este item','warn');
+    return;
+  }
   it.confQtd++;
-  toast('✓ '+it.nome.substring(0,28)+' ('+it.confQtd+')','success');
+  toast('✓ '+it.nome.substring(0,28)+' ('+it.confQtd+'/'+it.qtd+')','success');
   atualizarStatsConf();
   renderConfItens();
 }
@@ -1170,12 +1169,13 @@ function renderConfItens(){
   if(!G.confAtual)return;
   document.getElementById('conf-itens-lista').innerHTML=G.confAtual.itens.map(function(it){
     var ok=it.confQtd>=it.qtd;
-    var over=it.confQtd>it.qtd;
-    var cor=over?'var(--red)':ok?'var(--green)':'var(--text2)';
+    var status=ok
+      ? '<span style="font-size:11px;font-weight:700;color:var(--green);font-family:var(--mono)">✓ OK</span>'
+      : '<span style="font-size:11px;font-weight:700;color:var(--red);font-family:var(--mono)">DIVERGÊNCIA</span>';
     return '<div class="item-row">'
-      +'<div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:'+(over?'var(--red)':ok?'var(--green)':'var(--border2)')+'""></div>'
+      +'<div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:'+(ok?'var(--green)':'var(--red)')+'""></div>'
       +'<div class="item-info"><div class="item-cod">'+it.cod+'</div><div class="item-nome">'+it.nome+'</div></div>'
-      +'<div style="font-size:14px;font-family:var(--mono);color:'+cor+'">'+it.confQtd+'</div>'
+      +status
       +'</div>';
   }).join('');
 }
@@ -1189,10 +1189,11 @@ function finalizarConferencia(){
   document.getElementById('mcr-sub').textContent=sub;
   document.getElementById('mcr-lista').innerHTML=G.confAtual.itens.map(function(it){
     var ok=it.confQtd===it.qtd;
-    var cor=ok?'var(--green)':'var(--red)';
     return '<div class="conf-row">'
-      +'<span class="conf-lbl">'+it.nome.substring(0,22)+'</span>'
-      +'<span class="conf-val" style="color:'+cor+'">'+it.confQtd+'/'+it.qtd+'</span>'
+      +'<span class="conf-lbl">'+it.nome.substring(0,24)+'</span>'
+      +(ok
+        ? '<span class="conf-val" style="color:var(--green)">✓ OK</span>'
+        : '<span class="conf-val" style="color:var(--red)">DIVERGÊNCIA</span>')
       +'</div>';
   }).join('');
   document.getElementById('modal-conf-result').classList.add('open');
